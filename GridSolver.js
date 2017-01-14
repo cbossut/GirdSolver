@@ -1,8 +1,22 @@
-var gridSize = [11, 11],
+var gridSize = [12, 12],
     cellSize = 1,
     contourStyle = "stroke:black; stroke-width:3; fill:none",
     gridStyle = "stroke:black; stroke-width:1",
-    svg
+    svg,
+    grid = [
+      [[],[1,1],[],[],[],[],[1],[],[],[],[],[1,1]],
+      [],
+      [[],[1,1],[],[1,1,1],[],[],[],[],[1,1,1,1],[],[],[1,1]],
+      [[],[],[],[],[1,1,1],[],[],[],[],[],[],[]],
+      [[1],[],[1],[],[],[],[],[1,1,1],[],[],[],[]],
+      [[],[],[],[],[1,1,1],[],[],[],[],[],[1,1,1],[]],
+      [[],[1,1],[],[],[],[],[],[1,1,1],[],[],[],[]],
+      [[],[],[],[],[1,1],[],[],[],[],[1],[],[1,1]],
+      [[],[],[],[],[],[],[],[1,1],[],[],[],[]],
+      [[1],[],[],[1,1,1],[],[],[],[],[1,1,1],[],[1],[]],
+      [],
+      [[1],[],[],[],[],[1],[],[],[],[],[1],[]]
+    ]
 
 function draw() {
   svg = document.getElementsByTagName('svg')[0]
@@ -18,6 +32,8 @@ function draw() {
   var rect = document.createElementNS(svg.namespaceURI, "rect")
   rect.style = contourStyle + ";x:0;y:0;width:100%;height:100%"
   svg.appendChild(rect)
+
+  console.log(checkSave(grid))
 
   for (var i = 0 ; i < gridSize[0] ; i++) {
     for (var j = 0 ; j < gridSize[1] ; j++) {
@@ -50,4 +66,14 @@ function draw() {
       svg.appendChild(cell)
     }
   }
+}
+
+function checkSave(save) {
+  if (save.length != gridSize[1]) return "wrong number of lines"
+  for (var i = 0 ; i < save.length ; i++) {
+    if (save[i].length != gridSize[0] && save[i].length != 0) {
+      return "wrong number of cells in line " + (i+1)
+    }
+  }
+  return "save checked"
 }
