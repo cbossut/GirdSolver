@@ -1,10 +1,10 @@
 var gridSize = [12, 12],
     cellSize = 1,
     cluePos = [
-      [[.5, .5]],
-      [[.25, .25], [.75, .75]],
-      [[.25, .25], [.5, .75], [.75, .25]],
-      [[.25, .5], [.75, .5], [.5, .25], [.5, .75]]
+      [[.5, .5, .8]],
+      [[.3, .3, .5], [.7, .7, .5]],
+      [[.25, .3, .5], [.5, .7, .5], [.75, .3, .5]],
+      [[.25, .5, .4], [.75, .5, .4], [.5, .25, .4], [.5, .75, .4]]
     ],
     contourStyle = "stroke:black; stroke-width:3; fill:none",
     gridStyle = "stroke:black; stroke-width:1",
@@ -94,9 +94,10 @@ function loadSave(save) {
       var pos = cluePos[content.length - 1]
       for (var k = 0 ; k < content.length ; k++) {
         var clue = document.createElementNS(svg.namespaceURI, "text")
-        clue.style = "fill:black;"
+        clue.style = "fill:black; alignment-baseline:central; text-anchor:middle; font-weight:bold; font-family:Helvetica"
         clue.setAttribute('x', ((j + pos[k][0]) * cellSize) + "cm")
         clue.setAttribute('y', ((i + pos[k][1]) * cellSize) + "cm")
+        clue.setAttribute('font-size', (pos[k][2] * cellSize) + "cm")
         /* TODO: Don't understand why it doesn't work
         clue.style = [
           "fill:black; x:",
