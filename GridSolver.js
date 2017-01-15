@@ -33,8 +33,6 @@ function draw() {
   rect.style = contourStyle + ";x:0;y:0;width:100%;height:100%"
   svg.appendChild(rect)
 
-  console.log(checkSave(grid))
-
   for (var i = 0 ; i < gridSize[0] ; i++) {
     for (var j = 0 ; j < gridSize[1] ; j++) {
       var cell = document.createElementNS(svg.namespaceURI, "rect")
@@ -60,7 +58,6 @@ function draw() {
       }
       */
       cell.onclick = function() {
-        console.log("click", this.id)
         this.style.fill = 'black'
       }
       svg.appendChild(cell)
