@@ -85,13 +85,13 @@ function checkSave(save) {
 
 function loadSave(save) {
   for (var i = 0 ; i < gridSize[0] ; i++) {
-    if (!save[i]) break
+    if (!save[i]) continue
     for (var j = 0 ; j < gridSize[1] ; j++) {
-      if (!save[i][j]) break
+      var content = save[i][j]
+      if (!content || !content.length) continue
       document.getElementById(i + ',' + j).onclick = function() {}
 
-      var content = save[i][j],
-          pos = cluePos[content.length - 1]
+      var pos = cluePos[content.length - 1]
       for (var k = 0 ; k < content.length ; k++) {
         var clue = document.createElementNS(svg.namespaceURI, "text")
         clue.style = "fill:black;"
