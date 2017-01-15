@@ -39,9 +39,9 @@ function draw() {
       cell.style = [
         gridStyle,
         "; x:",
-        i * cellSize,
-        "cm; y:",
         j * cellSize,
+        "cm; y:",
+        i * cellSize,
         "cm; width:",
         cellSize,
         "cm; height:",
