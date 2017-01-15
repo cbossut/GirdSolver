@@ -46,7 +46,7 @@ function draw() {
         cellSize,
         "cm; height:",
         cellSize,
-        "cm; fill:white"
+        "cm; fill-opacity:0"
       ].join('')
       cell.id = i + ',' + j
       /*
@@ -58,7 +58,7 @@ function draw() {
       }
       */
       cell.onclick = function() {
-        this.style.fill = 'black'
+        this.style.fillOpacity = 1
       }
       svg.appendChild(cell)
     }
