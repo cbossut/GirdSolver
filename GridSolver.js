@@ -1,5 +1,11 @@
 var gridSize = [12, 12],
     cellSize = 1,
+    cluePos = [
+      [[.5, .5]],
+      [[.25, .25], [.75, .75]],
+      [[.25, .25], [.5, .75], [.75, .25]],
+      [[.25, .5], [.75, .5], [.5, .25], [.5, .75]]
+    ],
     contourStyle = "stroke:black; stroke-width:3; fill:none",
     gridStyle = "stroke:black; stroke-width:1",
     svg,
@@ -63,14 +69,49 @@ function draw() {
       svg.appendChild(cell)
     }
   }
+
+  if (checkSave(grid)[1]) loadSave(grid)
 }
 
 function checkSave(save) {
-  if (save.length != gridSize[1]) return "wrong number of lines"
+  if (save.length != gridSize[1]) return [false, "wrong number of lines"]
   for (var i = 0 ; i < save.length ; i++) {
     if (save[i].length != gridSize[0] && save[i].length != 0) {
-      return "wrong number of cells in line " + (i+1)
+      return [false, "wrong number of cells in line " + (i+1)]
     }
   }
-  return "save checked"
+  return [true, "save checked"]
+}
+
+function loadSave(save) {
+  for (var i = 0 ; i < gridSize[0] ; i++) {
+    if (!save[i]) break
+    for (var j = 0 ; j < gridSize[1] ; j++) {
+      if (!save[i][j]) break
+      document.getElementById(i + ',' + j).onclick = function() {}
+
+      var content = save[i][j],
+          pos = cluePos[content.length - 1]
+      for (var k = 0 ; k < content.length ; k++) {
+        var clue = document.createElementNS(svg.namespaceURI, "text")
+        clue.style = "fill:black;"
+        clue.setAttribute('x', ((j + pos[k][0]) * cellSize) + "cm")
+        clue.setAttribute('y', ((i + pos[k][1]) * cellSize) + "cm")
+        /* TODO: Don't understand why it doesn't work
+        clue.style = [
+          "fill:black; x:",
+          (j + pos[k][0]) * cellSize,
+          "cm; y:",
+          (i + pos[k][1]) * cellSize,
+          "cm"
+        ].join('')
+        */
+        clue.onclick = function() {
+          this.opacity = .5
+        }
+        clue.appendChild(document.createTextNode(content[k]))
+        svg.appendChild(clue)
+      }
+    }
+  }
 }
