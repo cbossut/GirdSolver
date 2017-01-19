@@ -55,16 +55,15 @@ function draw() {
         "cm; fill-opacity:0"
       ].join('')
       cell.id = i + ',' + j
-      /*
       cell.onmouseover = function() {
-        console.log("over", this.id)
+        if (!this.clicked) this.style.fillOpacity = .2
       }
       cell.onmouseout = function() {
-        console.log("out", this.id)
+        if (!this.clicked) this.style.fillOpacity = 0
       }
-      */
       cell.onclick = function() {
-        this.style.fillOpacity = 1
+        if (!this.clicked) this.style.fillOpacity = 1, this.clicked = true
+        else this.style.fillOpacity = .2, this.clicked = false
       }
       svg.appendChild(cell)
     }
