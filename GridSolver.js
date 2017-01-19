@@ -94,6 +94,33 @@ function loadSave(save) {
       for (var k = 0 ; k < content.length ; k++) {
         var point = [(j + pos[k][0]) * cellSize, (i + pos[k][1]) * cellSize],
             clueSize = pos[k][2] * cellSize
+
+        var clueRect = document.createElementNS(svg.namespaceURI, "rect")
+        clueRect.style = [
+          "fill-opacity:0; x:",
+          point[0] - clueSize/2,
+          "cm; y:",
+          point[1] - clueSize/2,
+          "cm; width:",
+          clueSize,
+          "cm; height:",
+          clueSize,
+          "cm"
+        ].join('')
+
+        clueRect.id = i + ',' + j + ',' + k
+        clueRect.onmouseover = function() {
+          this.style.fillOpacity = .2
+        }
+        clueRect.onmouseout = function() {
+          this.style.fillOpacity = 0
+        }
+        clueRect.onclick = function() {
+          if (!this.clicked) this.clue.style.opacity = .5, this.clicked = true
+          else this.clue.style.opacity = 1, this.clicked = false
+        }
+        svg.appendChild(clueRect)
+
         var clue = document.createElementNS(svg.namespaceURI, "text")
         clue.style = [
           "fill:black; alignment-baseline:central; text-anchor:middle; ",
@@ -114,11 +141,10 @@ function loadSave(save) {
           "cm"
         ].join('')
         */
-        clue.onclick = function() {
-          this.opacity = .5
-        }
         clue.appendChild(document.createTextNode(content[k]))
         svg.appendChild(clue)
+
+        clueRect.clue = clue // TODO:Bad coding design ? Unreadable ?
       }
     }
   }
