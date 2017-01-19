@@ -88,15 +88,23 @@ function loadSave(save) {
     for (var j = 0 ; j < gridSize[1] ; j++) {
       var content = save[i][j]
       if (!content || !content.length) continue
-      document.getElementById(i + ',' + j).onclick = function() {}
+      document.getElementById(i + ',' + j).style += "; pointer-events:none"
 
       var pos = cluePos[content.length - 1]
       for (var k = 0 ; k < content.length ; k++) {
+        var point = [(j + pos[k][0]) * cellSize, (i + pos[k][1]) * cellSize],
+            clueSize = pos[k][2] * cellSize
         var clue = document.createElementNS(svg.namespaceURI, "text")
-        clue.style = "fill:black; alignment-baseline:central; text-anchor:middle; font-weight:bold; font-family:Helvetica"
-        clue.setAttribute('x', ((j + pos[k][0]) * cellSize) + "cm")
-        clue.setAttribute('y', ((i + pos[k][1]) * cellSize) + "cm")
-        clue.setAttribute('font-size', (pos[k][2] * cellSize) + "cm")
+        clue.style = [
+          "fill:black; alignment-baseline:central; text-anchor:middle; ",
+          "font-weight:bold; font-family:Helvetica; ",
+          "pointer-events:none; cursor:context-menu; ",
+          "user-select: none; -webkit-user-select:none; -moz-user-select:none"
+        ].join('  ')
+        clue.setAttribute('x', point[0] + "cm")
+        clue.setAttribute('y', point[1] + "cm")
+        clue.setAttribute('font-size', clueSize + "cm")
+        clue.id = "clue" + i + ',' + j + ',' + k
         /* TODO: Don't understand why it doesn't work
         clue.style = [
           "fill:black; x:",
