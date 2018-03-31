@@ -42,6 +42,8 @@ var cellSize = 1,
     ]
 */
 
+// TODO as I multiply nearly all position by cellSize, could use a global transformation instead
+
 // TODO clean all constants !!
 
 
@@ -72,19 +74,8 @@ function draw() {
     if (!currentCell.filled) {
       currentCell.filled = currentCell.number = true // TODO indicators for cell content could be a bool array => bitwise ops
 
-      var number = document.createElementNS(svg.namespaceURI, "text")
-      number.style = [ // TODO could be aligned to the corner borders instead of centered on predefined coordinates
-        "fill:black; alignment-baseline:central; text-anchor:middle; ",
-        "font-weight:bold; font-family:Helvetica; ",
-        "pointer-events:none; cursor:context-menu; ",
-        "user-select: none; -webkit-user-select:none; -moz-user-select:none"
-      ].join('  ')
-
-      number.setAttribute('x', (coord[1] + .5) * cellSize + "cm")
-      number.setAttribute('y', (coord[0] + .5) * cellSize + "cm")
-      number.setAttribute('font-size', .8 * cellSize + "cm")
+      var number = createText(coord[1]+.5, coord[0]+.5, .8, e.key)
       number.id = "number" + currentCell.id
-      number.textContent = e.key
       svg.appendChild(number)
     }
     else if (currentCell.number) {
@@ -97,18 +88,8 @@ function draw() {
       hint.id = "hint" + currentCell.id + ',' + currentCell.hint
     }
     if (currentCell.hint && currentCell.hint < 8) {
-      var hint = document.createElementNS(svg.namespaceURI, "text")
-      hint.style = [
-        "fill:black; alignment-baseline:central; text-anchor:middle; ",
-        "font-weight:bold; font-family:Helvetica; ",
-        "pointer-events:none; cursor:context-menu; ",
-        "user-select: none; -webkit-user-select:none; -moz-user-select:none"
-      ].join('  ')
-      hint.setAttribute('x', (coord[1] + .2 + .2 * (currentCell.hint % 4)) * cellSize + "cm")
-      hint.setAttribute('y', (coord[0] + .2 + .6 * Math.floor(currentCell.hint / 4)) * cellSize + "cm")
-      hint.setAttribute('font-size', .25 * cellSize + "cm")
+      var hint = createText((coord[1] + .2 + .2 * (currentCell.hint % 4)), (coord[0] + .2 + .6 * Math.floor(currentCell.hint / 4)), .25, e.key)
       hint.id = "hint" + currentCell.id + ',' + ++currentCell.hint
-      hint.textContent = e.key
       svg.appendChild(hint)
     }
   }
@@ -219,8 +200,6 @@ function loadSave(save) {
       }
       else if (content.type == 'Clue') {
         cell.style.pointerEvents = 'none'
-        
-        var color = content.subtype == "Kakuro" ? 'white' : 'black'
       
         var vals = content.vals
             pos = cluePos[vals.length - 1]
@@ -256,28 +235,8 @@ function loadSave(save) {
           }
           svg.appendChild(clueRect)
 
-          var clue = document.createElementNS(svg.namespaceURI, "text")
-          clue.style = [ // TODO could be aligned to the corner borders instead of centered on predefined coordinates
-            "fill:"+color+"; alignment-baseline:central; text-anchor:middle; ",
-            /*"font-weight:bold; */"font-family:Helvetica; ",
-            "pointer-events:none; cursor:context-menu; ",
-            "user-select: none; -webkit-user-select:none; -moz-user-select:none"
-          ].join('  ')
-          clue.setAttribute('x', point[0] + "cm")
-          clue.setAttribute('y', point[1] + "cm")
-          clue.setAttribute('font-size', clueSize + "cm")
+          var clue = createText(point[0], point[1], clueSize, vals[k], content.subtype == "Kakuro" ? 'white' : 'black', content.subtype == "Kakuro" ? 'normal' : 'bold')
           clue.id = "clue" + i + ',' + j + ',' + k
-          /* TODO: Don't understand why it doesn't work
-          clue.style = [
-            "fill:black; x:",
-            (j + pos[k][0]) * cellSize,
-            "cm; y:",
-            (i + pos[k][1]) * cellSize,
-            "cm"
-          ].join('')
-          */
-        
-          clue.textContent = vals[k]
           svg.appendChild(clue)
 
           clueRect.clue = clue // TODO:Bad coding design ? Unreadable ?
@@ -285,31 +244,61 @@ function loadSave(save) {
         
         if (content.subtype == "Kakuro") {
           cell.style.fillOpacity = 1
-          var diag = document.createElementNS(svg.namespaceURI, "line")
-          diag.style = "stroke:white; stroke-width:1"
-          diag.setAttribute('x1', j * cellSize + "cm")
-          diag.setAttribute('y1', i * cellSize + "cm")
-          diag.setAttribute('x2', (j + 1) * cellSize + "cm")
-          diag.setAttribute('y2', (i + 1) * cellSize + "cm")
-          svg.appendChild(diag)
+          svg.appendChild(createDiagonal(i, j, 'white'))
         }
       }
       else if (content.right) {
-        var dot = document.createElementNS(svg.namespaceURI, "circle")
-        dot.style = "stroke:black; stroke-width:1; fill:" + content.right
-        dot.setAttribute('cx', (j + 1) * cellSize + "cm")
-        dot.setAttribute('cy', (i + .5) * cellSize + "cm")
-        dot.setAttribute('r', .2 * cellSize + "cm")
-        svg.appendChild(dot)
+        svg.appendChild(createBorderCircle(i, j, content.right, 2))
       }
       else if (content.down) {
-        var dot = document.createElementNS(svg.namespaceURI, "circle")
-        dot.style = "stroke:black; stroke-width:1; fill:" + content.down
-        dot.setAttribute('cx', (j + .5) * cellSize + "cm")
-        dot.setAttribute('cy', (i + 1) * cellSize + "cm")
-        dot.setAttribute('r', .2 * cellSize + "cm")
-        svg.appendChild(dot)
+        svg.appendChild(createBorderCircle(i, j, content.down, 3))
       }
     }
   }
+}
+
+// TODO function to create preformatted text by its purpose ? create Number, Hint, Clue
+
+function createText(x, y, size, text, color='black', weight='bold') {
+  var el = document.createElementNS(svg.namespaceURI, "text")
+  el.style = [ // TODO could be aligned to the corner borders instead of centered on predefined coordinates
+    "fill:"+color+"; alignment-baseline:central; text-anchor:middle; ",
+    "font-weight:"+weight+";font-family:Helvetica; ",
+    "pointer-events:none; cursor:context-menu; ",
+    "user-select: none; -webkit-user-select:none; -moz-user-select:none"
+  ].join(' ')
+  el.setAttribute('x', x + "cm")
+  el.setAttribute('y', y + "cm")
+  el.setAttribute('font-size', size + "cm")
+  /* TODO: Don't understand why it doesn't work
+  clue.style = [
+    "fill:black; x:",
+    (j + pos[k][0]) * cellSize,
+    "cm; y:",
+    (i + pos[k][1]) * cellSize,
+    "cm"
+  ].join('')
+  */
+  el.textContent = text
+  return el
+}
+
+function createDiagonal(i, j, color='black') {
+  var el = document.createElementNS(svg.namespaceURI, "line")
+  el.style = "stroke:white; stroke-width:1"
+  el.setAttribute('x1', j * cellSize + "cm")
+  el.setAttribute('y1', i * cellSize + "cm")
+  el.setAttribute('x2', (j + 1) * cellSize + "cm")
+  el.setAttribute('y2', (i + 1) * cellSize + "cm")
+  return el
+}
+
+function createBorderCircle(i, j, color, side) { // side = 1 up, 2 right, 3 down, 4 left
+  var el = document.createElementNS(svg.namespaceURI, "circle"),
+      pos = [j + 1 + .5 * (2 - side) % 2, i + 1 + .5 * (side - 3) % 2]
+  el.style = "stroke:black; stroke-width:1; fill:" + color
+  el.setAttribute('cx', pos[0] * cellSize + "cm")
+  el.setAttribute('cy', pos[1] * cellSize + "cm")
+  el.setAttribute('r', .2 * cellSize + "cm")
+  return el
 }
