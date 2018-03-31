@@ -64,27 +64,53 @@ function draw() {
     "cm"
   ].join('')
 
-  document.body.onkeypress = function(e) {
-    if (!currentCell || currentCell.filled) return
-    
-    currentCell.filled = true
+  document.body.onkeypress = function(e) { //console.log(e.key, e.code)
+    if (!currentCell) return
     
     var coord = currentCell.id.split(',').map((v,i,a)=>parseInt(v))
     
-    var number = document.createElementNS(svg.namespaceURI, "text")
-    number.style = [ // TODO could be aligned to the corner borders instead of centered on predefined coordinates
-      "fill:black; alignment-baseline:central; text-anchor:middle; ",
-      "font-weight:bold; font-family:Helvetica; ",
-      "pointer-events:none; cursor:context-menu; ",
-      "user-select: none; -webkit-user-select:none; -moz-user-select:none"
-    ].join('  ')
-    
-    number.setAttribute('x', (coord[1] + .5) * cellSize + "cm")
-    number.setAttribute('y', (coord[0] + .5) * cellSize + "cm")
-    number.setAttribute('font-size', .8 * cellSize + "cm")
-    number.id = "number" + currentCell.id
-    number.appendChild(document.createTextNode(e.key))
-    svg.appendChild(number)
+    if (!currentCell.filled) {
+      currentCell.filled = currentCell.number = true // TODO indicators for cell content could be a bool array => bitwise ops
+
+      var number = document.createElementNS(svg.namespaceURI, "text")
+      number.style = [ // TODO could be aligned to the corner borders instead of centered on predefined coordinates
+        "fill:black; alignment-baseline:central; text-anchor:middle; ",
+        "font-weight:bold; font-family:Helvetica; ",
+        "pointer-events:none; cursor:context-menu; ",
+        "user-select: none; -webkit-user-select:none; -moz-user-select:none"
+      ].join('  ')
+
+      number.setAttribute('x', (coord[1] + .5) * cellSize + "cm")
+      number.setAttribute('y', (coord[0] + .5) * cellSize + "cm")
+      number.setAttribute('font-size', .8 * cellSize + "cm")
+      number.id = "number" + currentCell.id
+      number.appendChild(document.createTextNode(e.key))
+      svg.appendChild(number)
+    }
+    else if (currentCell.number) {
+      currentCell.number = false
+      currentCell.hint = 1
+      var hint = document.getElementById("number" + currentCell.id)
+      hint.setAttribute('x', (coord[1] + .2) * cellSize + "cm")
+      hint.setAttribute('y', (coord[0] + .2) * cellSize + "cm")
+      hint.setAttribute('font-size', .25 * cellSize + "cm")
+      hint.id = "hint" + currentCell.id + ',' + currentCell.hint
+    }
+    if (currentCell.hint && currentCell.hint < 8) {
+      var hint = document.createElementNS(svg.namespaceURI, "text")
+      hint.style = [
+        "fill:black; alignment-baseline:central; text-anchor:middle; ",
+        "font-weight:bold; font-family:Helvetica; ",
+        "pointer-events:none; cursor:context-menu; ",
+        "user-select: none; -webkit-user-select:none; -moz-user-select:none"
+      ].join('  ')
+      hint.setAttribute('x', (coord[1] + .2 + .2 * (currentCell.hint % 4)) * cellSize + "cm")
+      hint.setAttribute('y', (coord[0] + .2 + .6 * Math.floor(currentCell.hint / 4)) * cellSize + "cm")
+      hint.setAttribute('font-size', .25 * cellSize + "cm")
+      hint.id = "hint" + currentCell.id + ',' + ++currentCell.hint
+      hint.appendChild(document.createTextNode(e.key))
+      svg.appendChild(hint)
+    }
   }
 
   var rect = document.createElementNS(svg.namespaceURI, "rect")
@@ -119,7 +145,7 @@ function draw() {
       cell.onclick = function() {
         if (!this.filled) this.style.fillOpacity = 1, this.black = this.filled = true
         else if (this.black) this.style.fillOpacity = .2, this.black = this.filled = false
-        else document.getElementById("number" + this.id).remove(), this.filled = false
+        else if (this.number) document.getElementById("number" + this.id).remove(), this.number = this.filled = false
       }
       svg.appendChild(cell)
     }
