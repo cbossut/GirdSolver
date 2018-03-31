@@ -84,7 +84,7 @@ function draw() {
       number.setAttribute('y', (coord[0] + .5) * cellSize + "cm")
       number.setAttribute('font-size', .8 * cellSize + "cm")
       number.id = "number" + currentCell.id
-      number.appendChild(document.createTextNode(e.key))
+      number.textContent = e.key
       svg.appendChild(number)
     }
     else if (currentCell.number) {
@@ -108,7 +108,7 @@ function draw() {
       hint.setAttribute('y', (coord[0] + .2 + .6 * Math.floor(currentCell.hint / 4)) * cellSize + "cm")
       hint.setAttribute('font-size', .25 * cellSize + "cm")
       hint.id = "hint" + currentCell.id + ',' + ++currentCell.hint
-      hint.appendChild(document.createTextNode(e.key))
+      hint.textContent = e.key
       svg.appendChild(hint)
     }
   }
@@ -276,7 +276,8 @@ function loadSave(save) {
             "cm"
           ].join('')
           */
-          clue.appendChild(document.createTextNode(vals[k]))
+        
+          clue.textContent = vals[k]
           svg.appendChild(clue)
 
           clueRect.clue = clue // TODO:Bad coding design ? Unreadable ?
